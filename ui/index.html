@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>NFT Royalty Splitter - Redesigned UX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color-scheme: dark;
+        background: #050816;
+        color: #f9fafb;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #1f2937;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        background: linear-gradient(90deg, #020617, #111827);
+      }
+
+      header h1 {
+        font-size: 1.15rem;
+        margin: 0;
+      }
+
+      header p {
+        margin: 0.15rem 0 0;
+        font-size: 0.8rem;
+        color: #9ca3af;
+      }
+
+      main {
+        flex: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.4fr);
+        gap: 1.5rem;
+        padding: 1.5rem;
+      }
+
+      @media (max-width: 900px) {
+        main {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+
+      .panel {
+        border-radius: 0.85rem;
+        padding: 1.25rem 1.4rem;
+        background: radial-gradient(circle at top left, #111827, #020617);
+        border: 1px solid #1f2937;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+      }
+
+      .panel h2 {
+        margin-top: 0;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .panel p.description {
+        margin-top: 0;
+        font-size: 0.85rem;
+        color: #9ca3af;
+      }
+
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        margin-top: 0.75rem;
+      }
+
+      label {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      input[type="text"],
+      input[type="number"] {
+        padding: 0.5rem 0.6rem;
+        border-radius: 0.5rem;
+        border: 1px solid #374151;
+        background: #020617;
+        color: #f9fafb;
+        font-size: 0.85rem;
+      }
+
+      input:focus-visible {
+        outline: 2px solid #22c55e;
+        outline-offset: 1px;
+        border-color: transparent;
+      }
+
+      button {
+        border-radius: 999px;
+        border: none;
+        padding: 0.55rem 1.1rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      button.primary {
+        background: linear-gradient(90deg, #22c55e, #84cc16);
+        color: #022c22;
+      }
+
+      button.secondary {
+        background: #020617;
+        color: #e5e7eb;
+        border: 1px solid #374151;
+      }
+
+      button[disabled] {
+        opacity: 0.55;
+        cursor: default;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        background: rgba(34, 197, 94, 0.12);
+        color: #bbf7d0;
+      }
+
+      #status {
+        font-size: 0.8rem;
+        color: #d1d5db;
+        min-height: 1.4em;
+      }
+
+      .status-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #6b7280;
+      }
+
+      .demo-steps ol {
+        padding-left: 1.2rem;
+        margin: 0.35rem 0 0;
+        font-size: 0.8rem;
+        color: #9ca3af;
+      }
+
+      .metric {
+        font-size: 0.85rem;
+        color: #e5e7eb;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>NFT Royalty Splitter</h1>
+        <p>Automatic revenue sharing for multi-artist drops on Stacks.</p>
+      </div>
+      <div class="stack" style="align-items: flex-end; gap: 0.35rem">
+        <button id="connect" class="primary">Connect Stacks wallet</button>
+        <div id="connected-address" class="pill" style="display: none"></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <h2>1. Configure collaborators &amp; deposit royalties</h2>
+        <p class="description">
+          This UI talks to the <code>royalty-splitter</code> contract. Use it to
+          configure shares, send royalty liquidity, and preview what each artist
+          can claim.
+        </p>
+
+        <div class="stack">
+          <form id="collaborators-form" class="stack">
+            <label>
+              Artist 1 principal
+              <input
+                id="artist-1-principal"
+                type="text"
+                placeholder="ST... artist wallet"
+              />
+            </label>
+            <label>
+              Artist 1 share (percent)
+              <input id="artist-1-share" type="number" min="0" max="100" />
+            </label>
+
+            <label>
+              Artist 2 principal
+              <input
+                id="artist-2-principal"
+                type="text"
+                placeholder="ST... artist wallet"
+              />
+            </label>
+            <label>
+              Artist 2 share (percent)
+              <input id="artist-2-share" type="number" min="0" max="100" />
+            </label>
+
+            <button type="submit" class="secondary">
+              Save collaborator splits (calls
+              <code>set-collaborator-share</code>)
+            </button>
+          </form>
+
+          <form id="deposit-form" class="stack">
+            <label>
+              Royalty amount to deposit (microSTX)
+              <input
+                id="deposit-amount"
+                name="amount"
+                type="number"
+                min="0"
+                step="1"
+              />
+            </label>
+            <button type="submit" class="primary">
+              Deposit royalties (calls <code>deposit-liquidity</code>)
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>2. Claimable view &amp; single-click payout</h2>
+        <p class="description">
+          In a real deployment this panel would show live on-chain balances.
+          Here we keep it lightweight but wire up all the UX flows you need for
+          a 5-minute demo.
+        </p>
+
+        <div class="stack">
+          <div>
+            <div class="status-label">Demo status</div>
+            <div id="status"></div>
+          </div>
+
+          <label>
+            Artist principal to preview
+            <input
+              id="artist-preview-principal"
+              type="text"
+              placeholder="ST... artist wallet"
+            />
+          </label>
+
+          <div class="stack">
+            <button id="preview-claimable" class="secondary">
+              Preview claimable amount (calls <code>get-claimable</code>)
+            </button>
+            <button id="claim-button" class="primary">
+              Claim my royalties (calls <code>claim</code>)
+            </button>
+          </div>
+
+          <div class="metric" id="preview-output"></div>
+
+          <div class="demo-steps">
+            <p class="status-label">5-minute live demo script</p>
+            <ol>
+              <li>Connect wallet as the collaborative project admin.</li>
+              <li>Paste two artist principals and assign shares (e.g. 70 / 30).</li>
+              <li>Deposit some microSTX as test royalties.</li>
+              <li>
+                Switch to an artist wallet, hit "Preview" then "Claim my
+                royalties".
+              </li>
+              <li>Show how the remaining artist still has unclaimed balance.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

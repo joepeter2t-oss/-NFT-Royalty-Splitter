@@ -1,0 +1,6 @@
+[project]
+name = "nft-royalty-splitter"
+description = "NFT Royalty Splitter - automatic revenue distribution for collaborating artists"
+
+[contracts.royalty-splitter]
+path = "contracts/royalty-splitter.clar"
